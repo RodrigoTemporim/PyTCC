@@ -9,10 +9,9 @@ import pandas as pd
 def openFile(): # função pra de abrir a janela
    filepath = filedialog.askopenfilename() #vai selecionar o path do arquivo selecionado
    dinheiro_df = pd.read_csv(filepath, encoding='latin-1', sep=';')   # vai ler o excel no path encontrado no anterior
-   print(dinheiro_df['Histórico'])
-   #dinheiro_df['Histórico'] = dinheiro_df['Histórico'].str.replace('\D+', '')   # vai limnpar a coluna historico  mantendo apenas o codigo das contas
-   #seleta = dinheiro_df.dropna(how='all') # vai limpar a coluna historico eliminando todos as linhas completamente vazias 
-   #print(seleta)
+   dinheiro_df['Histórico'] = dinheiro_df['Histórico'].str.replace('\D+', '')   # vai limnpar a coluna historico  mantendo apenas o codigo das contas
+   seleta = dinheiro_df.dropna(how='all') # vai limpar a coluna historico eliminando todos as linhas completamente vazias 
+   print(seleta)
     
    
 #    notas = dinheiro_df['Histórico']
