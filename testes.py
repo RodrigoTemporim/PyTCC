@@ -13,12 +13,6 @@ def openFile(): # função pra de abrir a janela
    seleta = dinheiro_df.dropna(how='all') # vai limpar a coluna historico eliminando todos as linhas completamente vazias 
    print(seleta)
     
-   
-#    notas = dinheiro_df['Histórico']
-#    # file = open(filepath, 'r')   
-#    # print(file.read())
-#    # file.close()
-   
 
 window = Tk() # coisa do tkinter pra abrir a janela
 button = Button(text="Open", command=openFile) # ela abre aqui quando apertar o botão no command!!!!
