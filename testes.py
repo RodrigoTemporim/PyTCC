@@ -3,6 +3,7 @@ from tkinter import *
 from tkinter import filedialog
 import pandas as pd
 import numpy as np
+import interface as i
 
 
 def notString(file, string): # Delete all string values
@@ -31,10 +32,11 @@ def openFile(): # function open
    print(newIndexNoDuplicates)
    #136115
    
-   newIndexNoDuplicates.to_csv('D:/Rodrigo/Documents/teste1.csv', encoding='utf-8', header=True, sep=';')
+  #newIndexNoDuplicates.to_csv('D:/Rodrigo/Documents/teste1.csv', encoding='utf-8', header=True, sep=';')
   #csv_dfClean.to_csv(filepath, encoding='utf-8', header=True, sep='\t') #save file
 
 window = Tk() 
 button = Button(text="Open", command=openFile) 
 button.pack()
 window=mainloop() 
+
