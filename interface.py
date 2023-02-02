@@ -95,18 +95,7 @@ def File_dialog():
     label_file['text'] = filepath
     return None
 
-def view_Excel(df):      
-    try:        
-        print('a')
-    except ValueError:
-        tk.messagebox.showerror(
-            'Information', 'the file you have choose is invalid')
-        return None
-    except FileNotFoundError:
-        tk.messagebox.showerror(
-            'Information', f'no suck file as {Excel_cals()}')
-        return None   
-    
+def view_Excel(df):   
     clear_data()
     tv1['column'] = list(df.columns)
     tv1['show'] = 'headings'
