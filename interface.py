@@ -3,7 +3,6 @@ from tkinter import filedialog,ttk
 import pandas as pd
 
 
-
 root = tk.Tk()
 root.geometry('700x700')
 root.pack_propagate(False)
@@ -55,6 +54,10 @@ button6 = tk.Button(file_frame, text='Exportar',
                     font='Gothan',activebackground="#f00", activeforeground="#fff", command=lambda: export())
 button6.place(rely=0.220, relx=0.20)
 
+button7 = tk.Button(file_frame, text='Comparar',
+                    font='Gothan',activebackground="#f00", activeforeground="#fff", command=lambda: comparar())
+button7.place(rely=0.220, relx=0.50)
+
 label_file = ttk.Label(file_frame, text='No file Selected', font='Gothan')
 label_file.place(relx=0, rely=0)
 
@@ -93,7 +96,7 @@ def File_dialog():
     filepath = filedialog.askopenfilename(title='Selecione o arquivo')
 
     label_file['text'] = filepath
-    return None
+    return filepath
 
 def view_Excel(df):   
     clear_data()
@@ -166,6 +169,29 @@ def export():
              ('Text Document', '*.txt')]    
     file = filedialog.asksaveasfile(filetypes = files, defaultextension = files)  
     data_frame.to_csv(file, index=False, encoding='utf-16', sep=';')
+
+
+def comparar():
+    
+    global data_frame
+    filepath = filedialog.askopenfilename(title='Selecione o arquivo')
+    dt_comparar = pd.read_csv(filepath, encoding='latin-1',
+                         sep=';', decimal=',')   # read csv
+    
+    frame = [data_frame, dt_comparar]
+    comparado = pd.concat(frame)
+    comparado[['Nº da Nota', 'Conciliação']] = (comparado[['Nº da Nota', 'Conciliação']].apply(pd.to_numeric)).astype(
+        float)
+    f_comparado = comparado.groupby('Nº da Nota')[
+        'Conciliação'].sum().reset_index()   
+    t_comparado = f_comparado.sort_values(by=['Conciliação'])
+    final_comparado = t_comparado.drop_duplicates()    
+    view_Excel(final_comparado)
+    
+    
+    
+    
+    
     
 
 
