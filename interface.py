@@ -1,6 +1,7 @@
 import tkinter as tk
-from tkinter import filedialog,ttk
+from tkinter import filedialog,ttk, messagebox
 import pandas as pd
+import numpy as np
 
 
 root = tk.Tk()
@@ -74,12 +75,14 @@ treescrolly.pack(side='right', fill='y')
 data_frame = pd.DataFrame()
 
 def newColumnString(file, string, string1):  # Delete all string values
+    file[string].str.replace(r'^(0+)', '', regex = True).fillna(0)
     file[string1] = file[string].str.split('-', n=1).str.get(0)
-    file[string1] = file[string1].str.replace('\D+', '')
+    file[string1] = file[string1].str.replace('\D+', '', regex=True)
 
 
 def notString(file, string):  # Delete all string values
-    file[string] = file[string].str.replace('\D+', '')
+    file[string] = file[string].str.replace('\D+', '', regex = True)
+    
 
 
 def intoNumber(file, string, string1):
@@ -100,35 +103,43 @@ def File_dialog():
 
 def view_Excel(df):   
     clear_data()
-    tv1['column'] = list(df.columns)
-    tv1['show'] = 'headings'
-    for column in tv1['column']:
-        tv1.heading(column, text=column)
+    try:
+        tv1['column'] = list(df.columns)
+        tv1['show'] = 'headings'
+        for column in tv1['column']:
+            tv1.heading(column, text=column)
 
-    df_rows = df.to_numpy().tolist()
-    for row in df_rows:
-        tv1.insert('', 'end', values=row)
-    return None
+        df_rows = df.to_numpy().tolist()
+        for row in df_rows:
+            tv1.insert('', 'end', values=row)
+        return None
+    except:
+        print()
 
 
 def Excel_cals():
     global data_frame
     file_path = label_file['text']
-    csv_df = pd.read_csv(file_path, encoding='latin-1',
-                         sep=';', decimal=',')   # read csv
-    newColumnString(csv_df, 'Histórico', 'Nº da Nota')
-    notString(csv_df, 'Débito')
-    notString(csv_df, 'Crédito')
-    csv_df = intoNumber(csv_df, 'Crédito', 'Débito')
-    csv_df.eval('Conciliação = Débito - Crédito', inplace=True, target=csv_df)
-    csv_dfClean = csv_df.drop(['Crédito', 'Débito'], axis=1)
-    novo_csvdf = csv_dfClean.groupby(['Nº da Nota'])[
-        'Conciliação'].sum().reset_index()
-    novo_csvdf['Conciliação'] = (novo_csvdf['Conciliação'] * 0.01).round(2)
-    newIndex = novo_csvdf.sort_values(by=['Conciliação'])
-    newIndexNoDuplicates = newIndex.drop_duplicates()
-    data_frame = newIndexNoDuplicates
-    return newIndexNoDuplicates
+    try:
+        csv_df = pd.read_csv(file_path, encoding='latin-1',    
+                        sep=';', decimal=',')   # read csv
+    
+        newColumnString(csv_df, 'Histórico', 'Nº da Nota')
+        notString(csv_df, 'Débito')
+        notString(csv_df, 'Crédito')
+        csv_df = intoNumber(csv_df, 'Crédito', 'Débito')
+        csv_df.eval('Conciliação = Débito - Crédito', inplace=True, target=csv_df)
+        csv_dfClean = csv_df.drop(['Crédito', 'Débito'], axis=1)
+        novo_csvdf = csv_dfClean.groupby(['Nº da Nota'])[
+            'Conciliação'].sum().reset_index()
+        novo_csvdf['Conciliação'] = (novo_csvdf['Conciliação'] * 0.01).round(2)
+        newIndex = novo_csvdf.sort_values(by=['Conciliação'])
+        newIndexNoDuplicates = newIndex.drop_duplicates()
+        data_frame = newIndexNoDuplicates
+        return newIndexNoDuplicates
+    except:
+        messagebox.showerror('Arquivo Invalido','Error: Arquivo invalido!!!')
+        
     
     
 def filter_neg():    
@@ -170,24 +181,38 @@ def export():
     file = filedialog.asksaveasfile(filetypes = files, defaultextension = files)  
     data_frame.to_csv(file, index=False, encoding='utf-16', sep=';')
 
-
-def comparar():
-    
-    global data_frame
-    filepath = filedialog.askopenfilename(title='Selecione o arquivo')
-    dt_comparar = pd.read_csv(filepath, encoding='latin-1',
-                         sep=';', decimal=',')   # read csv
-    
-    frame = [data_frame, dt_comparar]
+def compararCals(ex1):
+    frame = [data_frame,ex1]
     comparado = pd.concat(frame)
     comparado[['Nº da Nota', 'Conciliação']] = (comparado[['Nº da Nota', 'Conciliação']].apply(pd.to_numeric)).astype(
         float)
     f_comparado = comparado.groupby('Nº da Nota')[
         'Conciliação'].sum().reset_index()   
     t_comparado = f_comparado.sort_values(by=['Conciliação'])
-    final_comparado = t_comparado.drop_duplicates()    
-    view_Excel(final_comparado)
+    t_comparado['Nº da Nota'] = np.int64(t_comparado['Nº da Nota']).astype(str)
+    final_comparado = t_comparado.drop_duplicates()
     
+    
+    return final_comparado
+
+def comparar():
+    
+    global data_frame
+    
+    try:
+        filepath = filedialog.askopenfilename(title='Selecione o arquivo')
+        dt_comparar = pd.read_csv(filepath, encoding='latin-1',
+                                sep=';', decimal=',')   # read csv    
+        try:       
+            view_Excel(compararCals(dt_comparar))
+        except:
+            Excel_cals(dt_comparar)
+            view_Excel(dt_comparar)
+    except:
+        messagebox.showerror('Erro message', 'Um arquivo é necessário!!')
+
+        
+        
     
     
     
